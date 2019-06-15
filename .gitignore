@@ -5,3 +5,6 @@
 *.idea
 
 assignments/assignment1/data/*
+
+
+__pycache__

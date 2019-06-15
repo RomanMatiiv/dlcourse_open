@@ -101,12 +101,21 @@ class KNN:
         dists, np array (num_test_samples, num_train_samples) - array
            with distances between each test and each train sample
         '''
-        num_train = self.train_X.shape[0]
-        num_test = X.shape[0]
+        # num_train = self.train_X.shape[0]
+        # num_test = X.shape[0]
         # Using float32 to to save memory - the default is float64
-        dists = np.zeros((num_test, num_train), np.float32)
+        # dists = np.zeros((num_test, num_train), np.float32)
         # TODO: Implement computing all distances with no loops!
-        pass
+        # main
+        res = X[:, None, :] - self.train_X[None, :, :]
+
+        # вар 2
+        # res = X[:, :, None] - self.train_X.reshape((3072, 121))[None, :,:]
+
+        res = np.abs(res)
+        dists = res.sum(axis=2)
+
+        return dists
 
     def predict_labels_binary(self, dists):
         '''
