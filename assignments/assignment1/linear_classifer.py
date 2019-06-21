@@ -163,10 +163,3 @@ class LinearSoftmaxClassifier():
         return y_pred
 
 
-
-                
-                                                          
-
-            
-
-                

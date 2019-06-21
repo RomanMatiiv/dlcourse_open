@@ -5,22 +5,25 @@ def numeric_grad(f, x, delta=1e-5):
     """
     two point formula for numerical gradient
 
+    my function
+
     f: function that receives x and computes value and gradient
     x: val (float)
 
 
-    f(x-delta)-f(x-delta)
+    f(x+delta) - f(x-delta)
   --------------------------
             2*delta
     """
     one_point = f(x+delta)[0]
     two_point = f(x-delta)[0]
 
-    numerical_grad = ((one_point-two_point)/2*delta)
+    numerical_grad = ((one_point-two_point)/(2*delta))
 
     return numerical_grad
 
-def check_gradient(f, x, delta=1e-5, tol = 1e-4):
+
+def check_gradient(f, x, delta=1e-5, tol=1e-4):
     '''
     Checks the implementation of analytical gradient by comparing
     it to numerical gradient using two-point formula
@@ -52,13 +55,10 @@ def check_gradient(f, x, delta=1e-5, tol = 1e-4):
         ix = it.multi_index
         analytic_grad_at_ix = analytic_grad[ix]
 
+        # TODO compute value of numeric gradient of f to idx
         cur_val = x[ix]
-        print(cur_val)
         numeric_grad_at_ix = numeric_grad(f, cur_val, delta)
 
-
-
-        # TODO compute value of numeric gradient of f to idx
         if not np.isclose(numeric_grad_at_ix, analytic_grad_at_ix, tol):
             print("Gradients are different at %s. Analytic: %2.5f, Numeric: %2.5f" % (ix, analytic_grad_at_ix, numeric_grad_at_ix))
             return False
@@ -67,7 +67,5 @@ def check_gradient(f, x, delta=1e-5, tol = 1e-4):
 
     print("Gradient check passed!")
     return True
-
-        
 
         
