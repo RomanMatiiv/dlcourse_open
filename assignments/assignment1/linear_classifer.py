@@ -15,7 +15,22 @@ def softmax(predictions):
     '''
     # TODO implement softmax
     # Your final implementation shouldn't have any loops
-    raise Exception("Not implemented!")
+
+    # for vector with shape (N)
+    if predictions.ndim == 1:
+        predictions -= np.max(predictions)
+        predictions_exp = np.exp(predictions)
+
+        probs = predictions_exp / predictions_exp.sum()
+
+    # for matrix with shape (batch_size, N)
+    elif predictions.ndim == 2:
+        predictions -= predictions.max(axis=1)[:, None]
+        predictions_exp = np.exp(predictions)
+
+        probs = predictions_exp / predictions_exp.sum(axis=1)[:, None]
+
+    return probs
 
 
 def cross_entropy_loss(probs, target_index):
@@ -33,7 +48,19 @@ def cross_entropy_loss(probs, target_index):
     '''
     # TODO implement cross-entropy
     # Your final implementation shouldn't have any loops
-    raise Exception("Not implemented!")
+    if probs.ndim == 1:
+        prob_true_class = probs[target_index]
+        loss = -np.log(prob_true_class)
+
+    elif probs.ndim == 2:
+        target_index = np.array(target_index)
+        target_index = target_index[:, None]
+        prob_true_classes = np.take_along_axis(probs, target_index, axis=1)
+
+        loss_for_each_elem = -np.log(prob_true_classes)
+        loss = loss_for_each_elem.mean()
+
+    return loss
 
 
 def softmax_with_cross_entropy(predictions, target_index):
@@ -53,7 +80,38 @@ def softmax_with_cross_entropy(predictions, target_index):
     '''
     # TODO implement softmax with cross-entropy
     # Your final implementation shouldn't have any loops
-    raise Exception("Not implemented!")
+
+    predictions = predictions.copy()
+
+    # for vector with shape (N)
+    if predictions.ndim == 1:
+        predictions -= np.max(predictions)
+        predictions_exp = np.exp(predictions)
+
+        predictions_exp_target = predictions_exp[target_index]
+
+        softmax_target = predictions_exp_target/predictions_exp.sum()
+        loss = -np.log(softmax_target)
+
+        dprediction = predictions_exp/predictions_exp.sum()
+
+        dprediction[target_index] = dprediction[target_index]-1
+
+        dprediction
+
+    # for matrix with shape (batch_size, N)
+    elif predictions.ndim == 2:
+        predictions -= predictions.max(axis=1)[:, None]
+        predictions_exp = np.exp(predictions)
+
+        predictions_exp_target = np.take_along_axis(predictions_exp, target_index, axis=1)
+
+        softmax_target = predictions_exp_target/predictions_exp.sum(axis=1)[:,None]
+        loss = -np.log(softmax_target).sum()
+
+        dprediction = predictions_exp/predictions_exp.sum(axis=1)[:,None]
+        dprediction_target = (predictions_exp_target / predictions_exp.sum(axis=1)[:, None]) - 1
+        np.put_along_axis(dprediction, target_index, dprediction_target, axis=1)
 
     return loss, dprediction
 
