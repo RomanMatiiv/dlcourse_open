@@ -81,7 +81,11 @@ def softmax_with_cross_entropy(predictions, target_index):
     # TODO implement softmax with cross-entropy
     # Your final implementation shouldn't have any loops
 
+    if predictions.ndim!=target_index.ndim:
+        target_index = target_index[:, None]
     predictions = predictions.copy()
+
+
 
     # for vector with shape (N)
     if predictions.ndim == 1:
@@ -154,8 +158,14 @@ def linear_softmax(X, W, target_index):
 
     # TODO implement prediction and gradient over W
     # Your final implementation shouldn't have any loops
-    raise Exception("Not implemented!")
-    
+
+    loss, dprediction = softmax_with_cross_entropy(predictions, target_index)
+
+    dW = W.copy()
+
+    for cur_class in range(W.shape[1]):
+        dW[:, cur_class] -= (dprediction[:, cur_class][:, None] * X).mean(axis=0)
+
     return loss, dW
 
 
