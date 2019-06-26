@@ -161,10 +161,14 @@ def linear_softmax(X, W, target_index):
 
     loss, dprediction = softmax_with_cross_entropy(predictions, target_index)
 
-    dW = W.copy()
+    # dW = W.copy()
 
-    for cur_class in range(W.shape[1]):
-        dW[:, cur_class] -= (dprediction[:, cur_class][:, None] * X).mean(axis=0)
+    # dW = np.zeros_like(W)
+    # for i in range(X.shape[0]):
+    #     dW+=(X[:,None][i]*dprediction[i][:,None]).T
+
+    dW = (X[:, None] * dprediction[:, :, None]).sum(axis=0).T
+
 
     return loss, dW
 
