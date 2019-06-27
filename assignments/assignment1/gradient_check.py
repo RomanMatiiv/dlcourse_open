@@ -50,6 +50,7 @@ def check_gradient(f, x, delta=1e-5, tol=1e-4):
       bool indicating whether gradients match or not
     '''
 
+
     assert isinstance(x, np.ndarray)
     assert x.dtype == np.float
     

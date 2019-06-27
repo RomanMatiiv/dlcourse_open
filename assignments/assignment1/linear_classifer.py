@@ -1,4 +1,5 @@
 import numpy as np
+import sys
 
 
 def softmax(predictions):
@@ -110,8 +111,9 @@ def softmax_with_cross_entropy(predictions, target_index):
 
         predictions_exp_target = np.take_along_axis(predictions_exp, target_index, axis=1)
 
+        epsilon = sys.float_info.epsilon
         softmax_target = predictions_exp_target/predictions_exp.sum(axis=1)[:,None]
-        loss = -np.log(softmax_target).sum()
+        loss = -np.log(softmax_target + epsilon).sum()
 
         dprediction = predictions_exp/predictions_exp.sum(axis=1)[:,None]
         dprediction_target = (predictions_exp_target / predictions_exp.sum(axis=1)[:, None]) - 1
@@ -135,7 +137,12 @@ def l2_regularization(W, reg_strength):
 
     # TODO: implement l2 regularization and gradient
     # Your final implementation shouldn't have any loops
-    raise Exception("Not implemented!")
+
+    W = W.copy()
+
+    loss = (W**2).sum() * reg_strength
+
+    grad = W*2 * reg_strength
 
     return loss, grad
     
@@ -176,9 +183,11 @@ def linear_softmax(X, W, target_index):
 class LinearSoftmaxClassifier():
     def __init__(self):
         self.W = None
+        # Осторожно хардкод
+        # Iam adding for reproducibility
+        np.random.seed(42)
 
-    def fit(self, X, y, batch_size=100, learning_rate=1e-7, reg=1e-5,
-            epochs=1):
+    def fit(self, X, y, batch_size=100, learning_rate=1e-7, reg=1e-5, epochs=1):
         '''
         Trains linear classifier
         
@@ -193,8 +202,12 @@ class LinearSoftmaxClassifier():
 
         num_train = X.shape[0]
         num_features = X.shape[1]
-        num_classes = np.max(y)+1
+        # num_classes = np.max(y)+1
+        y_unique = np.unique(y)
+        num_classes = len(y_unique)
+
         if self.W is None:
+
             self.W = 0.001 * np.random.randn(num_features, num_classes)
 
         loss_history = []
@@ -209,9 +222,25 @@ class LinearSoftmaxClassifier():
             # Apply gradient to weights using learning rate
             # Don't forget to add both cross-entropy loss
             # and regularization!
-            raise Exception("Not implemented!")
 
-            # end
+            loss = []
+            dW = np.zeros_like(self.W)
+
+            for cur_batch in batches_indices:
+                cur_X = X[cur_batch]
+                cur_y = y[cur_batch]
+
+                cur_loss, cur_dW = linear_softmax(cur_X, self.W, cur_y)
+                cur_loss_l2, cur_grad_l2 = l2_regularization(self.W, reg)
+
+                loss.append(cur_loss + cur_loss_l2)
+
+                dW += cur_dW + cur_grad_l2
+
+            self.W -= (learning_rate*dW)/len(batches_indices)
+            loss = np.mean(loss)
+            loss_history.append(loss)
+
             print("Epoch %i, loss: %f" % (epoch, loss))
 
         return loss_history
@@ -230,7 +259,11 @@ class LinearSoftmaxClassifier():
 
         # TODO Implement class prediction
         # Your final implementation shouldn't have any loops
-        raise Exception("Not implemented!")
+
+        predictions = np.dot(X, self.W)
+        probs = softmax(predictions)
+
+        y_pred = probs.argmax(axis=1)
 
         return y_pred
 
