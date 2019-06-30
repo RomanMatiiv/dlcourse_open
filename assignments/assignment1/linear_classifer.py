@@ -241,7 +241,7 @@ class LinearSoftmaxClassifier():
             loss = np.mean(loss)
             loss_history.append(loss)
 
-            print("Epoch %i, loss: %f" % (epoch, loss))
+            # print("Epoch %i, loss: %f" % (epoch, loss))
 
         return loss_history
 
